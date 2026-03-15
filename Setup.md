@@ -148,7 +148,7 @@ python gd_push.py
 - Saves the checksum to `dataset.sha256`
 - Instructs you to manually upload the zip file to Google Drive
 
-**Upload location:** [Google Drive Dataset Folder](https://drive.google.com/file/d/1g-FZzbF0DrDnuMsVXcWh5t3xKAJ9-N1/view?usp=sharing)
+**Upload location:** [Google Drive Dataset Folder](https://drive.google.com/drive/folders/1CjpIhF7LBYsFMFngy_TTkUxclgdYSyXX?usp=sharing)
 
 **When to use:** Run this after making changes to the dataset that you want to share with others.
 
