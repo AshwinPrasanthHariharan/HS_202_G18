@@ -13,3 +13,20 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# dataset
+dataset/
+data/
+
+# images
+*.jpg
+*.jpeg
+*.png
+
+# matlab
+*.mat
+
+# archives
+*.zip
+*.tar
+*.gz
