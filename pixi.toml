@@ -2,17 +2,21 @@
 authors = ["Ashwin Prasanth Hariharan <ashwinprasanth06@gmail.com>"]
 channels = ["conda-forge"]
 name = "HS202_repo"
-platforms = ["linux-64"]
+platforms = ["linux-64", "win-64"]
 version = "0.1.0"
 
 [tasks]
 
 [dependencies]
-python = ">=3.11,<3.14"
+python = ">=3.11,<3.13"
 pip = ">=23"
-ipykernel = ">=7.2.0,<8"
-jupyter = ">=1.1.1,<2"
-opencv = ">=4.13.0,<5"
-matplotlib = ">=3.10.8,<4"
-scipy = ">=1.17.1,<2"
-numpy = ">=2.4.2,<3"
+
+# Core
+numpy = ">=1.26,<2.1"
+scipy = ">=1.11,<1.13"
+matplotlib = ">=3.8,<3.9"
+opencv = "*"
+
+# Jupyter stack
+ipykernel = "*"
+notebook = "*"
