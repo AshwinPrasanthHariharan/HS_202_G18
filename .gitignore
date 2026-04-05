@@ -32,3 +32,4 @@ data/
 *.gz
 *.sha256
 *.md5
+/hs_venv
