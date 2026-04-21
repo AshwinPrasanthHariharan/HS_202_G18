@@ -7,6 +7,7 @@ from .yolo_detector import (
 from .density_calculator import (
     DensityCalculator,
     DEFAULT_SHANGHAITECH_ROOT,
+    build_gaussian_density_map,
     compute_density_map,
     draw_density_debug,
     get_shanghaitech_split_paths,
@@ -36,6 +37,7 @@ __all__ = [
     "get_centers_from_boxes",
     "DEFAULT_SHANGHAITECH_ROOT",
     "load_image",
+    "build_gaussian_density_map",
     "compute_density_map",
     "draw_density_debug",
     "process_frame_density",

@@ -24,6 +24,77 @@ def load_image(path: str | Path) -> np.ndarray:
 	return image
 
 
+def _estimate_adaptive_sigma(points: list[tuple[float, float]], min_sigma: float, max_sigma: float) -> float:
+	"""Estimate a density sigma from nearest-neighbor spacing."""
+	if len(points) < 2:
+		return float(max(min_sigma, min(max_sigma, (min_sigma + max_sigma) / 2.0)))
+
+	points_arr = np.asarray(points, dtype=np.float32)
+	diffs = points_arr[:, None, :] - points_arr[None, :, :]
+	distances = np.sqrt(np.sum(diffs * diffs, axis=2))
+	# Ignore self-distance zeros on the diagonal.
+	distances[distances == 0] = np.inf
+	nearest = np.min(distances, axis=1)
+	median_distance = float(np.median(nearest[np.isfinite(nearest)]))
+	if not np.isfinite(median_distance):
+		return float(max(min_sigma, min(max_sigma, (min_sigma + max_sigma) / 2.0)))
+
+	sigma = median_distance / 2.0
+	return float(max(min_sigma, min(max_sigma, sigma)))
+
+
+def build_gaussian_density_map(
+	points: list[tuple[float, float]],
+	shape: tuple[int, int],
+	sigma: float = 18.0,
+	adaptive_sigma: bool = False,
+	min_sigma: float = 10.0,
+	max_sigma: float = 15.0,
+) -> np.ndarray:
+	"""Create a smooth crowd density map from head points.
+
+	Each point contributes a Gaussian kernel whose truncated mass is renormalized
+	so that the total sum of the final heatmap equals the number of people.
+	"""
+	h, w = shape
+	density_map = np.zeros((h, w), dtype=np.float32)
+	if not points:
+		return density_map
+
+	if adaptive_sigma:
+		sigma = _estimate_adaptive_sigma(points, min_sigma=min_sigma, max_sigma=max_sigma)
+	else:
+		sigma = float(sigma)
+
+	if sigma <= 0:
+		raise ValueError("sigma must be greater than zero")
+
+	radius = max(1, int(np.ceil(3.0 * sigma)))
+
+	for x, y in points:
+		if not np.isfinite(x) or not np.isfinite(y):
+			continue
+
+		x1 = max(0, int(np.floor(x)) - radius)
+		x2 = min(w, int(np.floor(x)) + radius + 1)
+		y1 = max(0, int(np.floor(y)) - radius)
+		y2 = min(h, int(np.floor(y)) + radius + 1)
+
+		if x1 >= x2 or y1 >= y2:
+			continue
+
+		x_coords = np.arange(x1, x2, dtype=np.float32) - float(x)
+		y_coords = np.arange(y1, y2, dtype=np.float32) - float(y)
+		kernel = np.exp(-(y_coords[:, None] ** 2 + x_coords[None, :] ** 2) / (2.0 * sigma * sigma)).astype(np.float32)
+		kernel_sum = float(kernel.sum())
+		if kernel_sum <= 0:
+			continue
+
+		density_map[y1:y2, x1:x2] += kernel / kernel_sum
+
+	return density_map
+
+
 def compute_density_map(
 	points: list[tuple[float, float]],
 	grid: dict[str, tuple[float, float, float, float]],
